@@ -7,10 +7,17 @@ import { ArrowRight, Package, Zap, Star, Sparkles } from 'lucide-react';
 import { useOrderService } from '../services/orderService';
 import { useUser } from '@clerk/nextjs';
 
+interface Package {
+  name: string;
+  vials: number;
+  pricePerVial: number;
+  icon: React.ComponentType;
+}
+
 const LetyboOrderingPlatform = () => {
   const { user } = useUser();
   const { createOrder } = useOrderService();
-  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [totalOrders, setTotalOrders] = useState(0);
   const [customVials, setCustomVials] = useState(6);
   const [currentTier, setCurrentTier] = useState(0);
@@ -26,7 +33,7 @@ const LetyboOrderingPlatform = () => {
     return Math.round((maxPrice - priceDecrement) * 100) / 100;
   };
 
-  const packages = [
+  const packages: Package[] = [
     { name: "Starter", vials: 12, get pricePerVial() { return calculatePrice(this.vials); }, icon: Package },
     { name: "Professional", vials: 24, get pricePerVial() { return calculatePrice(this.vials); }, icon: Zap },
     { name: "Premium", vials: 36, get pricePerVial() { return calculatePrice(this.vials); }, icon: Star }
@@ -54,7 +61,7 @@ const LetyboOrderingPlatform = () => {
     setNextTierProgress(Math.min(progress, 100));
   };
 
-  const handleSelectPackage = (pkg) => {
+  const handleSelectPackage = (pkg: Package) => {
     setSelectedPackage(pkg);
     setCustomVials(pkg.vials);
     updateTierInfo(totalOrders + pkg.vials);
@@ -84,15 +91,15 @@ const LetyboOrderingPlatform = () => {
     }
   };
 
-  const handleCustomVialChange = (value) => {
+  const handleCustomVialChange = (value: number[]) => {
     const vials = value[0];
     setCustomVials(vials);
     const pricePerVial = calculatePrice(vials);
-    setSelectedPackage({ name: "Custom", vials: vials, pricePerVial: pricePerVial });
+    setSelectedPackage({ name: "Custom", vials: vials, pricePerVial: pricePerVial, icon: Package });
     updateTierInfo(totalOrders + vials);
   };
 
-  const CustomProgressBar = ({ value }) => (
+  const CustomProgressBar = ({ value }: { value: number }) => (
     <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
       <div 
         className="h-full bg-royal-blue transition-all duration-500 ease-in-out"
@@ -121,7 +128,9 @@ const LetyboOrderingPlatform = () => {
                   onClick={() => handleSelectPackage(pkg)}
                 >
                   <CardContent className="p-4 text-center">
-                    <pkg.icon className="w-8 h-8 mx-auto mb-2 text-royal-blue" />
+                    <div className="w-8 h-8 mx-auto mb-2 text-royal-blue">
+                      <pkg.icon />
+                    </div>
                     <h3 className="font-semibold mb-1">{pkg.name}</h3>
                     <p className="text-sm text-gray-500 mb-2">{pkg.vials} vials</p>
                     <p className="font-bold mb-2">${pkg.pricePerVial.toFixed(2)}/vial</p>
