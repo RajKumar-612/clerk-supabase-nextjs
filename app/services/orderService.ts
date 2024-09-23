@@ -3,7 +3,7 @@ import useClerkSupabaseClient from '../hooks/useClerkSupabaseClient';
 export const useOrderService = () => {
     const supabase = useClerkSupabaseClient();
 
-    const createOrder = async (orderData) => {
+    const createOrder = async (orderData: any) => {
         try {
             const { data, error } = await supabase
                 .from('orders')
